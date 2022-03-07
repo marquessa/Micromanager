@@ -1,0 +1,79 @@
+/*
+  Marquessa MacKenzie - 3174722
+  DIGF 3010: Advanced Wearables
+  Project 2: Super Sensitive
+  March 4, 2022
+  
+  Code References: 
+  Sensor Calibration: https://www.arduino.cc/en/Tutorial/BuiltInExamples/Calibration
+
+  Make: Wearable Electronics
+  Mapping example
+*/
+
+#include <Adafruit_CircuitPlayground.h>
+
+// initialize each sensor
+int seatSensorValue = 0;
+int seatSensorPin = A2;
+int mappedSeatSensorValue = 0;
+int lowestSeatSensorValue = 0;
+int highestSeatSensorValue = 1023;
+
+int biteSensorValue = 0;
+int biteSensorPin = A7;
+int mappedBiteSensorValue = 0;
+int lowestBiteSensorValue = 270;
+int highestBiteSensorValue = 900;
+
+void setup() {
+  // initialize serial communication:
+  Serial.begin(9600);
+  CircuitPlayground.begin();
+
+}
+
+void loop() {
+  CircuitPlayground.clearPixels();
+  // read  sensor pin and store value in a variable:
+  seatSensorValue = analogRead(seatSensorPin);
+  seatSensorValue = constrain(seatSensorValue, lowestSeatSensorValue, highestSeatSensorValue);
+  
+  biteSensorValue = analogRead(biteSensorPin);
+  biteSensorValue = constrain(biteSensorValue, lowestBiteSensorValue, highestBiteSensorValue);
+
+  // map sensor value
+  mappedSeatSensorValue = map(seatSensorValue, lowestSeatSensorValue, highestSeatSensorValue, 0, 255);
+  mappedBiteSensorValue = map(biteSensorValue, lowestBiteSensorValue, highestBiteSensorValue, 0, 255);
+
+  // set analog output accordingly
+  analogWrite(seatSensorPin, mappedSeatSensorValue);
+  
+  analogWrite(biteSensorPin, mappedBiteSensorValue);
+
+  // print the sensor and mapped sensor values:
+  Serial.print("Seat Sensor Value: ");
+  Serial.print(seatSensorValue);
+  Serial.print(", Mapped Seat Sensor Value: ");
+  Serial.print(mappedSeatSensorValue);
+  
+  Serial.print(", Bite Sensor Value: ");
+  Serial.print(biteSensorValue);
+  Serial.print(", Mapped Bite Sensor Value: ");
+  Serial.println(mappedBiteSensorValue);
+
+  // delay between readings:
+  delay(100);
+  }
+
+if mappedBiteSensorValue(255) {
+  Serial.println ("Bite Sensor Activated")
+  
+  for (int i = 0 ; i < 10; i++) { // loop through all of the lights and turn them on
+    CircuitPlayground.setPixelColor(i, 255, 0, 200); // pink colour
+   }
+
+ } else { // turn off all of the LEDs
+    CircuitPlayground.clearPixels();
+  }
+ }
