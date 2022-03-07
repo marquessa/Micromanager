@@ -1,0 +1,123 @@
+/*
+  Marquessa MacKenzie - 3174722
+  DIGF 3010: Advanced Wearables
+  Project 2: Super Sensitive
+  March 4, 2022
+  
+  Code References: 
+  Sensor Calibration: https://www.arduino.cc/en/Tutorial/BuiltInExamples/Calibration
+*/
+
+#include <Adafruit_CircuitPlayground.h>
+
+// initialize individual sensors
+
+const int seatSensorPin = A1;
+int seatSensorValue = 0;         // the sensor value
+int seatSensorMin = 600;        // minimum sensor value 
+// ran a sensor reading to capture the correct value. Had to lower limit to ensure that the sensor was not accidently activated 
+int seatSensorMax = 0;           // maximum sensor value
+
+
+const int biteSensorPin = A7;
+int biteSensorValue = 0;         // the sensor value
+int biteSensorMin = 1023;        // minimum sensor value
+int biteSensorMax = 0;           // maximum sensor value
+
+
+void setup() {
+  // initialize serial communication:
+  Serial.begin(9600);
+  CircuitPlayground.begin();
+
+  // calibrate seat sensor during the first five seconds
+  while (millis() < 2000) {
+    seatSensorValue = analogRead(seatSensorPin);
+    // record the maximum sensor value
+    if (seatSensorValue > seatSensorMax) {
+      seatSensorMax = seatSensorValue;
+    }
+    // record the minimum sensor value
+    if (seatSensorValue < seatSensorMin) {
+      seatSensorMin = seatSensorValue;
+    }
+  }
+  // calibrate bite sensor during the first five seconds
+  while (millis() < 2000) {
+    biteSensorValue = analogRead(biteSensorPin);
+    // record the maximum sensor value
+    if (biteSensorValue > biteSensorMax) {
+      biteSensorMax = biteSensorValue;
+    }
+    // record the minimum sensor value
+    if (biteSensorValue < biteSensorMin) {
+      biteSensorMin = biteSensorValue;
+    }
+  }
+
+
+}
+
+void loop() {
+
+  // read the sensor value - without external pressure:
+  seatSensorValue = analogRead(seatSensorPin);
+  biteSensorValue = analogRead(biteSensorPin);
+
+  // in case the sensor value is outside the range seen during calibration
+  seatSensorValue = constrain(seatSensorValue, seatSensorMin, seatSensorMax);
+  biteSensorValue = constrain(biteSensorValue, biteSensorMin, biteSensorMax);
+
+  // apply the calibration to the sensor reading
+  seatSensorValue = map(seatSensorValue, seatSensorMin, seatSensorMax, 0, 255);
+  biteSensorValue = map(biteSensorValue, biteSensorMin, biteSensorMax, 0, 255);
+
+  
+  // a loop to run the tone and red light if the seat sensor is activated
+  if (seatSensorValue > 225) {
+    Serial.print ("Seat Sensor Activated"); // running a check to make sure that it's activating
+    CircuitPlayground.playTone(880, 100);
+    CircuitPlayground.setPixelColor(0, 255, 0, 0);
+    CircuitPlayground.setPixelColor(1, 255, 0, 0);
+    CircuitPlayground.setPixelColor(2, 255, 0, 0);
+    CircuitPlayground.setPixelColor(3, 255, 0, 0);
+    CircuitPlayground.setPixelColor(4, 255, 0, 0);
+    CircuitPlayground.setPixelColor(5, 255, 0, 0);
+    CircuitPlayground.setPixelColor(6, 255, 0, 0);
+    CircuitPlayground.setPixelColor(7, 255, 0, 0);
+    CircuitPlayground.setPixelColor(8, 255, 0, 0);
+    CircuitPlayground.setPixelColor(9, 255, 0, 0);
+    delay(100);
+
+  } else { // turn off all of the LEDs
+    Serial.print ("Seat Sensor Deactivated"); // running a check to make sure that it's deactivated
+
+  }
+  for (int i = 10; i >= 0 ; i--) { // when the pressure is released, turn off the lights
+    CircuitPlayground.setPixelColor(i, 0, 0, 0);
+  }
+
+  if (biteSensorValue > 225) {
+    Serial.println (", Bite Sensor Activated"); // running a check to make sure that it's activating
+    CircuitPlayground.playTone(440, 100);
+    CircuitPlayground.setPixelColor(0, 0, 0, 255);
+    CircuitPlayground.setPixelColor(1, 0, 0, 255);
+    CircuitPlayground.setPixelColor(2, 0, 0, 255);
+    CircuitPlayground.setPixelColor(3, 0, 0, 255);
+    CircuitPlayground.setPixelColor(4, 0, 0, 255);
+    CircuitPlayground.setPixelColor(5, 0, 0, 255);
+    CircuitPlayground.setPixelColor(6, 0, 0, 255);
+    CircuitPlayground.setPixelColor(7, 0, 0, 255);
+    CircuitPlayground.setPixelColor(8, 0, 0, 255);
+    CircuitPlayground.setPixelColor(9, 0, 0, 255);
+    delay(100);
+
+  } else { // turn off all of the LEDs
+    Serial.println (", Bite Sensor Deactivated"); // running a check to make sure that it's deactivated
+
+  }
+  for (int i = 10; i >= 0 ; i--) { // when the pressure is released, turn off the lights
+    CircuitPlayground.setPixelColor(i, 0, 0, 0);
+  }
+
+}
